@@ -1,0 +1,14 @@
+<div class="venues-list-container">
+    <h2>Venues</h2>
+    
+    <mat-tab-group>
+      <mat-tab label="List View">
+        <mat-list>
+          <mat-list-item *ngFor="let venue of venues" >
+            <h3 matLine (click)="onEventClick(venue)">{{ venue.name }}, Location: {{venue.location}}</h3>
+          </mat-list-item>
+        </mat-list>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+  
