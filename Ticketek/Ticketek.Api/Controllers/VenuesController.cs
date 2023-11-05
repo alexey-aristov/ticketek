@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Ticketek.Api.Entities;
 using Ticketek.Api.Models;
@@ -37,8 +38,26 @@ namespace Ticketek.Api.Controllers
                 Location = venueCreateModel.Location
             };
 
+
             dbContext.Add(newVenue);
-            await dbContext.SaveChangesAsync();
+
+            try
+            {
+                await dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException e)
+            when (e.InnerException?.InnerException is SqlException sqlEx &&
+              (sqlEx.Number == 2601 || sqlEx.Number == 2627))
+            {
+                var existing = await dbContext.Venues.SingleAsync(x=>x.Name == venueCreateModel.Name && x.Location == venueCreateModel.Location);
+                return new VenueModel()
+                {
+                    Id = existing.Id,
+                    Name = existing.Name,
+                    Capacity = existing.Capacity,
+                    Location = existing.Location
+                };
+            }
 
             return new VenueModel()
             {
